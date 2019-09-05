@@ -6,11 +6,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
-var stats dups.Stats = dups.Stats{}
-
-func WalkThroughFiles(initDir string, filesChannel *chan string) error {
+func WalkThroughFiles(initDir string, filesChannel *chan string, stats *dups.Stats) error {
+	mutex := sync.Mutex{}
 	defer close(*filesChannel)
 
 	err := filepath.Walk(initDir, func(path string, info os.FileInfo, err error) error {
@@ -22,8 +22,10 @@ func WalkThroughFiles(initDir string, filesChannel *chan string) error {
 		if !info.IsDir() {
 			log.Printf("it is not a dir: %q\n", path)
 
-			stats.FilesAmount++
-			stats.FilesSize += info.Size()
+			mutex.Lock()
+			(*stats).FilesAmount++
+			(*stats).FilesSize += info.Size()
+			mutex.Unlock()
 			*filesChannel <- path
 		}
 		return nil
