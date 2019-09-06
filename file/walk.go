@@ -15,7 +15,7 @@ func WalkThroughFiles(initDir string, filesChannel *chan string, stats *dups.Sta
 
 	err := filepath.Walk(initDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			fmt.Printf("error accessing a path %q: %v\n", path, err)
+			fmt.Printf("file.WalkThroughFiles: error accessing a path %q: %v\n", path, err)
 			return err
 		}
 		log.Printf("visited file or dir: %q\n", path)

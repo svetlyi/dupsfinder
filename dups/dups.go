@@ -8,10 +8,7 @@ import (
 
 func ListenFilesInfoChannel(filesInfoChannel *chan FileInfo, doneChannel *chan bool, db *sql.DB) {
 	var fileDups = make(map[string][]FileInfo)
-	insertStmt, insertErr := db.Prepare(`INSERT INTO files('path', 'hash') VALUES (?, ?)`)
-	if insertErr != nil {
-		log.Fatal(insertErr)
-	}
+	insertStmt := getInsertStmt(db)
 	defer insertStmt.Close()
 
 	for fileInfo := range *filesInfoChannel {

@@ -9,21 +9,16 @@ import (
 
 var db *sql.DB = nil
 
-func init() {
-	createDB()
-	migration.RunMigrations(db)
-	//defer db.Close()
-}
-
 func GetDB() *sql.DB {
 	return db
 }
 
-func createDB() {
+func CreateDB(dbPath string) {
 	var err error
 
-	db, err = sql.Open("sqlite3", "./dups.db")
+	db, err = sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
+	migration.RunMigrations(db)
 }
