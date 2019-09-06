@@ -1,13 +1,26 @@
 package dups
 
-import "fmt"
+import (
+	"database/sql"
+	"fmt"
+	"log"
+)
 
-func ListenFilesInfoChannel(filesInfoChannel *chan FileInfo, doneChannel *chan bool) {
+func ListenFilesInfoChannel(filesInfoChannel *chan FileInfo, doneChannel *chan bool, db *sql.DB) {
 	var fileDups = make(map[string][]FileInfo)
+	insertStmt, insertErr := db.Prepare(`INSERT INTO files('path', 'hash') VALUES (?, ?)`)
+	if insertErr != nil {
+		log.Fatal(insertErr)
+	}
+	defer insertStmt.Close()
 
 	for fileInfo := range *filesInfoChannel {
 		if nil == fileDups[fileInfo.Hash] {
 			fileDups[fileInfo.Hash] = make([]FileInfo, 0)
+		}
+		_, err := insertStmt.Exec(fileInfo.Path, fileInfo.Hash)
+		if nil != err {
+			log.Fatal(err)
 		}
 		fileDups[fileInfo.Hash] = append(fileDups[fileInfo.Hash], fileInfo)
 	}
@@ -16,7 +29,7 @@ func ListenFilesInfoChannel(filesInfoChannel *chan FileInfo, doneChannel *chan b
 	*doneChannel <- true
 }
 
-func printDups(files map[string][]FileInfo){
+func printDups(files map[string][]FileInfo) {
 	fmt.Println("==================================")
 	fmt.Println("Dups:")
 

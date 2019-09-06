@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/svetlyi/dupsfinder/database"
 	"github.com/svetlyi/dupsfinder/dups"
 	"github.com/svetlyi/dupsfinder/file"
 	"github.com/svetlyi/dupsfinder/web"
@@ -52,7 +53,7 @@ func main() {
 		go file.ListenFilesChannel(&filesChannel, &filesInfoChannel, &wg)
 	}
 
-	go dups.ListenFilesInfoChannel(&filesInfoChannel, &doneChannel)
+	go dups.ListenFilesInfoChannel(&filesInfoChannel, &doneChannel, database.GetDB())
 
 	wg.Wait()
 	fmt.Println("closing files info channel")

@@ -2,3 +2,4 @@ dupsfinder
 .idea
 *.swo
 *.swp
+dups.db
