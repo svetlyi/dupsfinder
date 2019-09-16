@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"github.com/svetlyi/dupsfinder/database"
@@ -8,6 +9,7 @@ import (
 	"github.com/svetlyi/dupsfinder/file"
 	"github.com/svetlyi/dupsfinder/web"
 	"log"
+	"os"
 	"sync"
 	"time"
 )
@@ -32,6 +34,7 @@ func main() {
 
 	var filesChannel chan string = make(chan string)
 	var filesInfoChannel chan dups.FileInfo = make(chan dups.FileInfo)
+	// doneChannel indicates that the calculations on all the files are finished
 	var doneChannel chan bool = make(chan bool)
 
 	stats.StartTime = time.Now()
@@ -57,6 +60,16 @@ func main() {
 	log.Println(stats.String())
 
 	<-doneChannel
+	confirmExit()
+}
+
+func confirmExit() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Press enter to exit: ")
+	_, err := reader.ReadString('\n')
+	if nil != err {
+		log.Fatal("An error reading stdin: ", err)
+	}
 }
 
 func checkArgs() {
