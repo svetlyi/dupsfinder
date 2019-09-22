@@ -17,15 +17,12 @@ CREATE TABLE IF NOT EXISTS files (
 `)
 }
 
-func RunMigrations(db *sql.DB) error {
+func RunMigrations(db *sql.DB) {
 	for _, query := range queries {
 		_, err := (*db).Exec(query)
 		if err != nil {
-			log.Printf("%q: %s\n", err, query)
-			return err
+			log.Fatalf("%q: %s\n", err, query)
 		}
 	}
 	log.Println("Migrated successfully")
-
-	return nil
 }

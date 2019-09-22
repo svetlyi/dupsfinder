@@ -1,4 +1,4 @@
-package dups
+package structs
 
 import (
 	"fmt"
@@ -41,9 +41,4 @@ func (s Stats) getFinalStat() string {
 		humsize.GetSize(s.FilesSize),
 		s.EndTime.Sub(s.StartTime),
 	)
-}
-
-type FileInfo struct {
-	Path string
-	Hash string
 }

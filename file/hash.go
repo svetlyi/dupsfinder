@@ -4,15 +4,15 @@ import (
 	"crypto/md5"
 	"database/sql"
 	"fmt"
-	"github.com/svetlyi/dupsfinder/dups"
+	"github.com/svetlyi/dupsfinder/structs"
 	"io"
 	"log"
 	"os"
 	"sync"
 )
 
-func ListenFilesChannel(filesChannel *chan string, filesInfoChannel *chan dups.FileInfo, wg *sync.WaitGroup, db *sql.DB) {
-	selectStmt := getSelectHashByPathStmt(db)
+func ListenFilesChannel(filesChannel *chan string, filesInfoChannel *chan structs.FileInfo, wg *sync.WaitGroup, db *sql.DB) {
+	selectStmt := GetSelectHashByPathStmt(db)
 	defer selectStmt.Close()
 	var hash string
 
@@ -31,7 +31,7 @@ func ListenFilesChannel(filesChannel *chan string, filesInfoChannel *chan dups.F
 		} else {
 			log.Printf("Found file %s in database\n", path)
 		}
-		fileInfo := dups.FileInfo{
+		fileInfo := structs.FileInfo{
 			Path: path,
 			Hash: hash,
 		}

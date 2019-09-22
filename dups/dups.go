@@ -3,17 +3,19 @@ package dups
 import (
 	"database/sql"
 	"fmt"
+	"github.com/svetlyi/dupsfinder/file"
+	"github.com/svetlyi/dupsfinder/structs"
 	"log"
 )
 
-func ListenFilesInfoChannel(filesInfoChannel *chan FileInfo, doneChannel *chan bool, db *sql.DB) {
-	var fileDups = make(map[string][]FileInfo)
-	insertStmt := getInsertStmt(db)
+func ListenFilesInfoChannel(filesInfoChannel *chan structs.FileInfo, doneChannel *chan bool, db *sql.DB) {
+	var fileDups = make(map[string][]structs.FileInfo)
+	insertStmt := file.GetInsertStmt(db)
 	defer insertStmt.Close()
 
 	for fileInfo := range *filesInfoChannel {
 		if nil == fileDups[fileInfo.Hash] {
-			fileDups[fileInfo.Hash] = make([]FileInfo, 0)
+			fileDups[fileInfo.Hash] = make([]structs.FileInfo, 0)
 		}
 		_, err := insertStmt.Exec(fileInfo.Path, fileInfo.Hash)
 		if nil != err {
@@ -26,7 +28,7 @@ func ListenFilesInfoChannel(filesInfoChannel *chan FileInfo, doneChannel *chan b
 	*doneChannel <- true
 }
 
-func printDups(files map[string][]FileInfo) {
+func printDups(files map[string][]structs.FileInfo) {
 	fmt.Println("==================================")
 	fmt.Println("Dups:")
 

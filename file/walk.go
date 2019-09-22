@@ -2,14 +2,14 @@ package file
 
 import (
 	"fmt"
-	"github.com/svetlyi/dupsfinder/dups"
+	"github.com/svetlyi/dupsfinder/structs"
 	"log"
 	"os"
 	"path/filepath"
 	"sync"
 )
 
-func WalkThroughFiles(initDir string, filesChannel *chan string, stats *dups.Stats) error {
+func WalkThroughFiles(initDir string, filesChannel *chan string, stats *structs.Stats) error {
 	mutex := sync.Mutex{}
 	defer close(*filesChannel)
 

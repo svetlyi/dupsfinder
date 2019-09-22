@@ -5,11 +5,28 @@ import (
 	"log"
 )
 
-func getSelectHashByPathStmt(db *sql.DB) *sql.Stmt {
+func GetSelectHashByPathStmt(db *sql.DB) *sql.Stmt {
 	selectStmt, selectErr := db.Prepare("SELECT hash FROM files WHERE path=?")
 
 	if nil != selectErr {
-		log.Fatalf("Error in getSelectHashByPathStmt: %s\n", selectErr)
+		log.Fatalf("Error in GetSelectHashByPathStmt: %s\n", selectErr)
 	}
 	return selectStmt
+}
+
+func GetSelectFilesByDir(db *sql.DB) *sql.Stmt {
+	selectStmt, selectErr := db.Prepare("SELECT path, hash FROM files WHERE path LIKE ?")
+
+	if nil != selectErr {
+		log.Fatalf("Error in GetSelectFilesByDir: %s\n", selectErr)
+	}
+	return selectStmt
+}
+
+func GetInsertStmt(db *sql.DB) *sql.Stmt {
+	insertStmt, insertErr := db.Prepare(`INSERT INTO files('path', 'hash') VALUES (?, ?)`)
+	if insertErr != nil {
+		log.Fatalf("Error in getInsertStmt: %s\n", insertErr)
+	}
+	return insertStmt
 }

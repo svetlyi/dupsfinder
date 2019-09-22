@@ -1,0 +1,8 @@
+package config
+
+var (
+	SearchPath string = "."
+	DBPath string = "./dups.db"
+	ProcNum int = 1
+	WebServerPort int = 55786
+)

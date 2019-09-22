@@ -1,0 +1,24 @@
+{{define "content"}}
+{{- template "header" -}}
+<h1>Show duplicates for a specific directory:</h1>
+<form method="get" action="/search-dups">
+    <label for="directory">Directory:</label>
+    <input id="directory" type="text" value="" name="dir" placeholder="directory"/>
+    <input type="submit" value="Show"/>
+</form>
+<table>
+    <thead>
+    <tr>
+        <td>Path</td>
+    </tr>
+    </thead>
+    <tbody>
+        {{ range .Files }}
+            <tr>
+                <td>{{ .Path }}</td>
+            </tr>
+        {{ end }}
+    </tbody>
+</table>
+{{- template "footer" -}}
+{{end}}

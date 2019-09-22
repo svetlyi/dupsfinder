@@ -3,3 +3,4 @@ dupsfinder
 *.swo
 *.swp
 dups.db
+config/config.go
