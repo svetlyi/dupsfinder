@@ -7,11 +7,18 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 )
 
-type searchDupsObj struct {
-	Files []structs.FileInfo
+type fileTmplObj struct {
+	Path      string
+	PathParts []string
+	Hash      string
+}
+
+type searchDupsTmplObj struct {
+	Files []fileTmplObj
 }
 
 func Searchdups(db *sql.DB) func(writer http.ResponseWriter, request *http.Request) {
@@ -31,7 +38,7 @@ func Searchdups(db *sql.DB) func(writer http.ResponseWriter, request *http.Reque
 
 	return func(writer http.ResponseWriter, request *http.Request) {
 		dirsToSearch, ok := request.URL.Query()["dir"]
-		var searchDups searchDupsObj
+		var searchDupsObj searchDupsTmplObj
 
 		if ok && len(dirsToSearch) == 1 {
 			rows, err := selectFilesStmt.Query(dirsToSearch[0] + "%")
@@ -45,7 +52,15 @@ func Searchdups(db *sql.DB) func(writer http.ResponseWriter, request *http.Reque
 				if err != nil {
 					log.Fatal(err)
 				}
-				searchDups.Files = append(searchDups.Files, fileInfo)
+
+				searchDupsObj.Files = append(
+					searchDupsObj.Files,
+					fileTmplObj{
+						Path:      fileInfo.Path,
+						PathParts: fileInfo.SplitPath(),
+						Hash:      fileInfo.Hash,
+					},
+				)
 			}
 			err = rows.Err()
 			if err != nil {
@@ -55,9 +70,9 @@ func Searchdups(db *sql.DB) func(writer http.ResponseWriter, request *http.Reque
 		rw := sync.RWMutex{}
 
 		rw.RLock()
-		mainTmplErr := mainTmpl.Execute(writer, searchDups)
-		if nil != mainTmplErr {
-			log.Fatalf("Failed to execute a template %s. Error: %#v", mainTmpl, mainTmplErr)
+		mainTmplErr := mainTmpl.Execute(writer, searchDupsObj)
+		if nil != mainTmplErr && !strings.Contains(mainTmplErr.Error(), "broken pipe") {
+			log.Fatalf("Failed to execute a template. Error: %v", mainTmplErr)
 		}
 		rw.RUnlock()
 	}

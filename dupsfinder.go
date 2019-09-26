@@ -66,6 +66,8 @@ func main() {
 }
 
 func confirmExit() {
+	fmt.Printf("Results are available here: 127.0.0.1:%d\n", port)
+
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Press enter to exit: ")
 	_, err := reader.ReadString('\n')

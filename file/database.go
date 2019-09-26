@@ -14,6 +14,16 @@ func GetSelectHashByPathStmt(db *sql.DB) *sql.Stmt {
 	return selectStmt
 }
 
+func GetHashByPathFromDB(stmt *sql.Stmt, path string) (string, error) {
+	var hash string
+	selectErr := stmt.QueryRow(path).Scan(&hash)
+	if selectErr != nil {
+		return "", selectErr
+	}
+
+	return hash, nil
+}
+
 func GetSelectFilesByDir(db *sql.DB) *sql.Stmt {
 	selectStmt, selectErr := db.Prepare("SELECT path, hash FROM files WHERE path LIKE ?")
 

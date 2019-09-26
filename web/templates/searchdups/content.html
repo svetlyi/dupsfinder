@@ -6,18 +6,26 @@
     <input id="directory" type="text" value="" name="dir" placeholder="directory"/>
     <input type="submit" value="Show"/>
 </form>
-<table>
+<table border="1">
     <thead>
     <tr>
         <td>Path</td>
     </tr>
     </thead>
     <tbody>
-        {{ range .Files }}
-            <tr>
-                <td>{{ .Path }}</td>
-            </tr>
-        {{ end }}
+    {{ range .Files }}
+        <tr>
+            <td>
+                {{ $url := "" }}
+                {{range .PathParts}}
+                    {{ if . }}
+                        {{ $url = (printf "%v/%v" $url .) }}
+                        <a href="?dir={{ $url }}">{{ . }}/</a>
+                    {{end}}
+                {{end}}
+            </td>
+        </tr>
+    {{ end }}
     </tbody>
 </table>
 {{- template "footer" -}}

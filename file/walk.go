@@ -9,6 +9,10 @@ import (
 	"sync"
 )
 
+/**
+Walks through the files in initDir folder
+and sends the files to filesChannel channel
+*/
 func WalkThroughFiles(initDir string, filesChannel *chan string, stats *structs.Stats) error {
 	mutex := sync.Mutex{}
 	defer close(*filesChannel)

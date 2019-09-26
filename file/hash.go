@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"database/sql"
 	"fmt"
+	"github.com/svetlyi/dupsfinder/config"
 	"github.com/svetlyi/dupsfinder/structs"
 	"io"
 	"log"
@@ -11,25 +12,27 @@ import (
 	"sync"
 )
 
+/**
+Listens to filesChannel channel and calculates hashes for
+the received from the channel files. Information about the
+processed files goes into filesInfoChannel channel.
+*/
 func ListenFilesChannel(filesChannel *chan string, filesInfoChannel *chan structs.FileInfo, wg *sync.WaitGroup, db *sql.DB) {
 	selectStmt := GetSelectHashByPathStmt(db)
 	defer selectStmt.Close()
 	var hash string
+	var selectHashErr error
 
 	for path := range *filesChannel {
-		selectErr := selectStmt.QueryRow(path).Scan(&hash)
-		if selectErr != nil {
-			if selectErr == sql.ErrNoRows {
-				var hashErr error
-				hash, hashErr = calculateHash(path)
-				if nil != hashErr {
-					log.Fatal(hashErr)
-				}
-			} else {
-				log.Fatal(selectErr)
-			}
+		if config.CheckFilesIntegrity {
+			hash = calculateHash(path)
 		} else {
-			log.Printf("Found file %s in database\n", path)
+			hash, selectHashErr = GetHashByPathFromDB(selectStmt, path)
+			if selectHashErr == nil {
+				log.Printf("Found file %s in database\n", path)
+			} else if selectHashErr == sql.ErrNoRows {
+				hash = calculateHash(path)
+			}
 		}
 		fileInfo := structs.FileInfo{
 			Path: path,
@@ -40,8 +43,7 @@ func ListenFilesChannel(filesChannel *chan string, filesInfoChannel *chan struct
 	wg.Done()
 }
 
-func calculateHash(path string) (string, error) {
-	//defer wg.Done()
+func calculateHash(path string) string {
 	f, err := os.Open(path)
 	defer f.Close()
 
@@ -57,5 +59,5 @@ func calculateHash(path string) (string, error) {
 		log.Fatal(err)
 	}
 
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
+	return fmt.Sprintf("%x", h.Sum(nil))
 }

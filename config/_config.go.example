@@ -4,5 +4,6 @@ var (
 	SearchPath string = "."
 	DBPath string = "./dups.db"
 	ProcNum int = 1
+    CheckFilesIntegrity bool = true
 	WebServerPort int = 55786
 )
