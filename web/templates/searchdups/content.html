@@ -16,6 +16,9 @@
     {{ range .Files }}
         <tr>
             <td>
+                {{ .Hash }}
+            </td>
+            <td>
                 {{ $url := "" }}
                 {{range .PathParts}}
                     {{ if . }}

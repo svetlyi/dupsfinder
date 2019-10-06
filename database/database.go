@@ -9,11 +9,7 @@ import (
 
 var db *sql.DB = nil
 
-func GetDB() *sql.DB {
-	return db
-}
-
-func CreateDB(dbPath string) {
+func NewDB(dbPath string) *sql.DB {
 	var err error
 
 	db, err = sql.Open("sqlite3", dbPath)
@@ -21,4 +17,6 @@ func CreateDB(dbPath string) {
 		log.Fatal(err)
 	}
 	migration.RunMigrations(db)
+
+	return db
 }

@@ -16,7 +16,9 @@ type Stats struct {
 func (s Stats) String() string {
 	var stringStat string
 
-	if s.EndTime.IsZero() {
+	if s.StartTime.IsZero() {
+		stringStat = "hasn't started searching yet :("
+	} else if s.EndTime.IsZero() {
 		stringStat = s.getCurrentStat()
 	} else {
 		stringStat = s.getFinalStat()

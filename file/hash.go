@@ -2,12 +2,10 @@ package file
 
 import (
 	"crypto/md5"
-	"database/sql"
 	"fmt"
-	"github.com/svetlyi/dupsfinder/config"
+	"github.com/svetlyi/dupsfinder/log"
 	"github.com/svetlyi/dupsfinder/structs"
 	"io"
-	"log"
 	"os"
 	"sync"
 )
@@ -17,46 +15,34 @@ Listens to filesChannel channel and calculates hashes for
 the received from the channel files. Information about the
 processed files goes into filesInfoChannel channel.
 */
-func ListenFilesChannel(filesChannel *chan string, filesInfoChannel *chan structs.FileInfo, wg *sync.WaitGroup, db *sql.DB) {
-	selectStmt := GetSelectHashByPathStmt(db)
-	defer selectStmt.Close()
+func CalculateHashes(filesChan *chan string, filesInfoChan *chan structs.FileInfo, calcHashesWG *sync.WaitGroup, logChan *chan log.Log) {
 	var hash string
-	var selectHashErr error
 
-	for path := range *filesChannel {
-		if config.CheckFilesIntegrity {
-			hash = calculateHash(path)
-		} else {
-			hash, selectHashErr = GetHashByPathFromDB(selectStmt, path)
-			if selectHashErr == nil {
-				log.Printf("Found file %s in database\n", path)
-			} else if selectHashErr == sql.ErrNoRows {
-				hash = calculateHash(path)
-			}
-		}
+	for path := range *filesChan {
+		hash = calculateHash(path, logChan)
 		fileInfo := structs.FileInfo{
 			Path: path,
 			Hash: hash,
 		}
-		*filesInfoChannel <- fileInfo
+		*filesInfoChan <- fileInfo
 	}
-	wg.Done()
+	calcHashesWG.Done()
 }
 
-func calculateHash(path string) string {
+func calculateHash(path string, logChan *chan log.Log) string {
 	f, err := os.Open(path)
-	defer f.Close()
 
 	if err != nil {
-		log.Fatalf("Could not open the file: %q\n", path)
+		log.Err(logChan, fmt.Sprintf("could not open the file: %q\n", path))
 	}
+	defer f.Close()
 
 	h := md5.New()
 
-	log.Printf("calculating hash for: %q\n", path)
+	log.Msg(logChan, fmt.Sprintf("calculating hash for: %q\n", path))
 
 	if _, err := io.Copy(h, f); err != nil {
-		log.Fatal(err)
+		log.Err(logChan, err.Error())
 	}
 
 	return fmt.Sprintf("%x", h.Sum(nil))

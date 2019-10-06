@@ -19,8 +19,7 @@ CREATE TABLE IF NOT EXISTS files (
 
 func RunMigrations(db *sql.DB) {
 	for _, query := range queries {
-		_, err := (*db).Exec(query)
-		if err != nil {
+		if _, err := (*db).Exec(query); err != nil {
 			log.Fatalf("%q: %s\n", err, query)
 		}
 	}

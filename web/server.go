@@ -1,26 +1,27 @@
 package web
 
 import (
-	"github.com/svetlyi/dupsfinder/database"
+	"fmt"
+	"github.com/svetlyi/dupsfinder/log"
 	"github.com/svetlyi/dupsfinder/structs"
 	"github.com/svetlyi/dupsfinder/web/templates/mainpage"
 	"github.com/svetlyi/dupsfinder/web/templates/searchdups"
-	"log"
 	"net/http"
-	"strconv"
 )
 
-func Serve(port int, stats *structs.Stats) {
-	registerRoutes(stats)
+func Serve(port uint16, app *structs.App) {
+	registerRoutes(app)
 
-	address := "localhost:" + strconv.Itoa(port)
-	log.Printf("Web server address: %s\n", address)
+	address := fmt.Sprintf("localhost:%d", port)
+	log.Msg(app.LogChan, fmt.Sprintf("web server address: %s\n", address))
 
-	log.Fatal(http.ListenAndServe(address, nil))
+	if err := http.ListenAndServe(address, nil); nil != err {
+		log.Err(app.LogChan, err.Error())
+	}
 }
 
-func registerRoutes(stats *structs.Stats) {
+func registerRoutes(app *structs.App) {
 	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("./web/templates/static"))))
-	http.HandleFunc("/", mainpage.Mainpage(stats))
-	http.HandleFunc("/search-dups", searchdups.Searchdups(database.GetDB()))
+	http.HandleFunc("/", mainpage.Mainpage(app.Stats))
+	http.HandleFunc("/search-dups", searchdups.Searchdups(app.DB))
 }

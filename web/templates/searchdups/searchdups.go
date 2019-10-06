@@ -2,7 +2,7 @@ package searchdups
 
 import (
 	"database/sql"
-	"github.com/svetlyi/dupsfinder/file"
+	"github.com/svetlyi/dupsfinder/dups"
 	"github.com/svetlyi/dupsfinder/structs"
 	"html/template"
 	"log"
@@ -34,14 +34,14 @@ func Searchdups(db *sql.DB) func(writer http.ResponseWriter, request *http.Reque
 	}
 	mainTmpl := templates.Lookup("content")
 
-	selectFilesStmt := file.GetSelectFilesByDir(db)
+	selectDupsStmt := dups.GetSelectDupsByDir(db)
 
 	return func(writer http.ResponseWriter, request *http.Request) {
 		dirsToSearch, ok := request.URL.Query()["dir"]
 		var searchDupsObj searchDupsTmplObj
 
 		if ok && len(dirsToSearch) == 1 {
-			rows, err := selectFilesStmt.Query(dirsToSearch[0] + "%")
+			rows, err := selectDupsStmt.Query(dirsToSearch[0])
 			if nil != err {
 				log.Fatalf("An error while querying: %v", err)
 			}

@@ -1,7 +1,7 @@
 package config
 
 var (
-	SearchPath string = "."
+	// nil value for an option means it is not set
 	DBPath string = "./dups.db"
 	ProcNum int = 1
     CheckFilesIntegrity bool = true

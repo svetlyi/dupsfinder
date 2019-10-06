@@ -2,8 +2,9 @@ package file
 
 import (
 	"fmt"
+	"github.com/svetlyi/dupsfinder/log"
 	"github.com/svetlyi/dupsfinder/structs"
-	"log"
+	"io"
 	"os"
 	"path/filepath"
 	"sync"
@@ -13,32 +14,36 @@ import (
 Walks through the files in initDir folder
 and sends the files to filesChannel channel
 */
-func WalkThroughFiles(initDir string, filesChannel *chan string, stats *structs.Stats) error {
+func WalkThroughFiles(initDir string, filesChannel *chan string, app *structs.App) {
 	mutex := sync.Mutex{}
 	defer close(*filesChannel)
 
 	err := filepath.Walk(initDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			fmt.Printf("file.WalkThroughFiles: error accessing a path %q: %v\n", path, err)
-			return err
-		}
-		log.Printf("visited file or dir: %q\n", path)
-		if !info.IsDir() {
-			log.Printf("it is not a dir: %q\n", path)
+		select {
+		case <-*app.ExitChan:
+			return io.EOF
+		default:
+			if err != nil {
+				log.Err(app.LogChan, fmt.Sprintf("file.WalkThroughFiles: error accessing a path %q: %v\n", path, err))
+				return err
+			}
+			log.Msg(app.LogChan, fmt.Sprintf("visited file or dir: %q\n", path))
+			if !info.IsDir() {
+				log.Msg(app.LogChan, fmt.Sprintf("it is not a dir: %q\n", path))
 
-			mutex.Lock()
-			(*stats).FilesAmount++
-			(*stats).FilesSize += info.Size()
-			mutex.Unlock()
-			*filesChannel <- path
+				mutex.Lock()
+				(*app.Stats).FilesAmount++
+				(*app.Stats).FilesSize += info.Size()
+				mutex.Unlock()
+				*filesChannel <- path
+			}
+			return nil
 		}
-		return nil
 	})
 
-	if err != nil {
-		fmt.Printf("error walking the path: %v\n", initDir)
-		return err
+	if nil != err && io.EOF != err {
+		log.Err(app.LogChan, fmt.Sprintf("error walking the path: %s\n", initDir))
+	} else if io.EOF == err {
+		log.Msg(app.LogChan, "file walking was terminated by a user")
 	}
-
-	return nil
 }
