@@ -4,17 +4,22 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
+	"github.com/svetlyi/dupsfinder/app"
 	"github.com/svetlyi/dupsfinder/config"
 	"github.com/svetlyi/dupsfinder/database"
-	"github.com/svetlyi/dupsfinder/log"
-	"github.com/svetlyi/dupsfinder/structs"
 	"os"
 )
 
-var app *structs.App = structs.NewApp()
+var application *app.App
 
 func init() {
-	go log.ListenToChannel(app.LogChan)
+	var err error
+	if application, err = app.New(); nil != err {
+		fmt.Println(err)
+		os.Exit(1)
+	} else {
+		go application.Logger.ListenToChannel(application.ExitChan)
+	}
 }
 
 func Run() {
@@ -23,8 +28,8 @@ func Run() {
 
 	for {
 		cmd = ""
-		if nil == app.DB {
-			app.DB = runCreateDB(scanner)
+		if nil == application.DB {
+			application.DB = runCreateDB(scanner)
 		} else if "" == cmd {
 			cmd = chooseCmd(scanner)
 			runCmd(cmd, scanner)
@@ -41,15 +46,13 @@ func runCreateDB(scanner *bufio.Scanner) *sql.DB {
 func runCmd(cmd string, scanner *bufio.Scanner) {
 	switch cmd {
 	case findDupsCmd:
-		runFindDupsCmd(scanner, app)
+		runFindDupsCmd(scanner, application)
 	case showStatsCmd:
-		runShowStatsCmd(app.Stats)
-	case showLastLogsCmd:
-		runShowLastLogs(scanner)
+		runShowStatsCmd(application.Stats)
 	case runWebServerCmd:
-		runWebServer(scanner, app)
+		runWebServer(scanner, application)
 	case exitCmd:
-		runExitCmd(app)
+		runExitCmd(application)
 	default:
 		runWrongCmd(cmd)
 		return

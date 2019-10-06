@@ -18,7 +18,7 @@ type fileTmplObj struct {
 }
 
 type searchDupsTmplObj struct {
-	Files []fileTmplObj
+	Files map[string][]fileTmplObj
 }
 
 func Searchdups(db *sql.DB) func(writer http.ResponseWriter, request *http.Request) {
@@ -39,6 +39,7 @@ func Searchdups(db *sql.DB) func(writer http.ResponseWriter, request *http.Reque
 	return func(writer http.ResponseWriter, request *http.Request) {
 		dirsToSearch, ok := request.URL.Query()["dir"]
 		var searchDupsObj searchDupsTmplObj
+		searchDupsObj.Files = make(map[string][]fileTmplObj)
 
 		if ok && len(dirsToSearch) == 1 {
 			rows, err := selectDupsStmt.Query(dirsToSearch[0])
@@ -53,8 +54,8 @@ func Searchdups(db *sql.DB) func(writer http.ResponseWriter, request *http.Reque
 					log.Fatal(err)
 				}
 
-				searchDupsObj.Files = append(
-					searchDupsObj.Files,
+				searchDupsObj.Files[fileInfo.Hash] = append(
+					searchDupsObj.Files[fileInfo.Hash],
 					fileTmplObj{
 						Path:      fileInfo.Path,
 						PathParts: fileInfo.SplitPath(),

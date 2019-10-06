@@ -15,7 +15,7 @@ WHERE f1.hash IN (
 	WHERE f2.path LIKE ? || '%'
 	GROUP BY f2.hash
 	HAVING COUNT(*) > 1
-) ORDER BY f1.hash
+) ORDER BY f1.hash, LENGTH(f1.path) DESC
 `
 	selectStmt, selectErr := db.Prepare(query)
 

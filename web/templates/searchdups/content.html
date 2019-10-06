@@ -13,21 +13,30 @@
     </tr>
     </thead>
     <tbody>
-    {{ range .Files }}
-        <tr>
-            <td>
-                {{ .Hash }}
-            </td>
-            <td>
-                {{ $url := "" }}
-                {{range .PathParts}}
-                    {{ if . }}
-                        {{ $url = (printf "%v/%v" $url .) }}
-                        <a href="?dir={{ $url }}">{{ . }}/</a>
+    {{ $curClass := "even" }}
+    {{ range $currentHash, $currentFiles := .Files }}
+        {{ if eq $curClass "even" }}
+            {{ $curClass = "odd" }}
+        {{ else }}
+            {{ $curClass = "even" }}
+        {{ end }}
+
+        {{ range $currentFiles }}
+            <tr class="{{ $curClass }}">
+                <td>
+                    {{ .Hash }}
+                </td>
+                <td>
+                    {{ $url := "" }}
+                    {{range .PathParts}}
+                        {{ if . }}
+                            {{ $url = (printf "%v/%v" $url .) }}
+                            <a href="?dir={{ $url }}">{{ . }}/</a>
+                        {{end}}
                     {{end}}
-                {{end}}
-            </td>
-        </tr>
+                </td>
+            </tr>
+        {{ end }}
     {{ end }}
     </tbody>
 </table>

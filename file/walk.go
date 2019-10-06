@@ -2,8 +2,7 @@ package file
 
 import (
 	"fmt"
-	"github.com/svetlyi/dupsfinder/log"
-	"github.com/svetlyi/dupsfinder/structs"
+	"github.com/svetlyi/dupsfinder/app"
 	"io"
 	"os"
 	"path/filepath"
@@ -14,7 +13,7 @@ import (
 Walks through the files in initDir folder
 and sends the files to filesChannel channel
 */
-func WalkThroughFiles(initDir string, filesChannel *chan string, app *structs.App) {
+func WalkThroughFiles(initDir string, filesChannel *chan string, app *app.App) {
 	mutex := sync.Mutex{}
 	defer close(*filesChannel)
 
@@ -24,12 +23,12 @@ func WalkThroughFiles(initDir string, filesChannel *chan string, app *structs.Ap
 			return io.EOF
 		default:
 			if err != nil {
-				log.Err(app.LogChan, fmt.Sprintf("file.WalkThroughFiles: error accessing a path %q: %v\n", path, err))
+				app.Logger.Err(fmt.Sprintf("file.WalkThroughFiles: error accessing a path %q: %v\n", path, err))
 				return err
 			}
-			log.Msg(app.LogChan, fmt.Sprintf("visited file or dir: %q\n", path))
+			app.Logger.Msg(fmt.Sprintf("visited file or dir: %q\n", path))
 			if !info.IsDir() {
-				log.Msg(app.LogChan, fmt.Sprintf("it is not a dir: %q\n", path))
+				app.Logger.Msg(fmt.Sprintf("it is not a dir: %q\n", path))
 
 				mutex.Lock()
 				(*app.Stats).FilesAmount++
@@ -42,8 +41,8 @@ func WalkThroughFiles(initDir string, filesChannel *chan string, app *structs.Ap
 	})
 
 	if nil != err && io.EOF != err {
-		log.Err(app.LogChan, fmt.Sprintf("error walking the path: %s\n", initDir))
+		app.Logger.Msg(fmt.Sprintf("error walking the path: %s\n", initDir))
 	} else if io.EOF == err {
-		log.Msg(app.LogChan, "file walking was terminated by a user")
+		app.Logger.Msg("file walking was terminated by a user")
 	}
 }

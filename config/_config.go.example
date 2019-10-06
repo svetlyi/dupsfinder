@@ -5,5 +5,6 @@ var (
 	DBPath string = "./dups.db"
 	ProcNum int = 1
     CheckFilesIntegrity bool = true
+    LogFile string = "dupsfinder.log"
 	WebServerPort int = 55786
 )

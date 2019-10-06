@@ -4,3 +4,4 @@ dupsfinder
 *.swp
 dups.db
 config/config.go
+dupsfinder.log

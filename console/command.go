@@ -3,9 +3,9 @@ package console
 import (
 	"bufio"
 	"fmt"
+	"github.com/svetlyi/dupsfinder/app"
 	"github.com/svetlyi/dupsfinder/config"
 	"github.com/svetlyi/dupsfinder/dups"
-	"github.com/svetlyi/dupsfinder/log"
 	"github.com/svetlyi/dupsfinder/structs"
 	"github.com/svetlyi/dupsfinder/web"
 	"os"
@@ -41,22 +41,22 @@ func getValueFromUser(scanner *bufio.Scanner, text string, def string) string {
 // gracefully terminates the application
 // listens to the done channel and if it is closed,
 // it exits
-func runExitCmd(app *structs.App) {
+func runExitCmd(app *app.App) {
 	select {
 	case <-*app.ExitChan:
 	default:
 		close(*app.ExitChan)
 		fmt.Println("closed exit channel. It will exit as soon as the operations will be finished")
 
-		go func(doneChan *chan bool) {
-			<-*doneChan
+		go func(exitChan *chan bool) {
+			<-*exitChan
 			fmt.Println("exiting...")
 			os.Exit(0)
-		}(app.DoneChan)
+		}(app.ExitChan)
 	}
 }
 
-func runWebServer(scanner *bufio.Scanner, app *structs.App) {
+func runWebServer(scanner *bufio.Scanner, app *app.App) {
 	portText := getValueFromUser(scanner, "select port for the server", strconv.Itoa(config.WebServerPort))
 
 	port64, err := strconv.ParseUint(portText, 10, 16)
@@ -64,10 +64,11 @@ func runWebServer(scanner *bufio.Scanner, app *structs.App) {
 		fmt.Printf("wrong value for port: %s\n", err.Error())
 	} else {
 		go web.Serve(uint16(port64), app)
+		fmt.Println("web server is about to run")
 	}
 }
 
-func runFindDupsCmd(scanner *bufio.Scanner, app *structs.App) {
+func runFindDupsCmd(scanner *bufio.Scanner, app *app.App) {
 	app.Stats.StartTime = time.Now()
 
 	var path string
@@ -81,18 +82,6 @@ func runFindDupsCmd(scanner *bufio.Scanner, app *structs.App) {
 	}
 	if path != "" && procNum64 > 0 {
 		go dups.Find(path, uint8(procNum64), app)
-	}
-}
-
-func runShowLastLogs(scanner *bufio.Scanner) {
-	numOfMessages := getValueFromUser(scanner, "number of messages", "10")
-	num, err := strconv.Atoi(numOfMessages)
-	if nil != err {
-		fmt.Printf("wrong number of messages: %s", err.Error())
-		num = 10
-	}
-	for _, msg := range log.GetLastMessages(num) {
-		fmt.Println(msg)
 	}
 }
 
