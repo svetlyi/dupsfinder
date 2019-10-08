@@ -32,5 +32,5 @@ func Serve(port uint16, app *app.App) {
 func registerRoutes(app *app.App) {
 	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("./web/templates/static"))))
 	http.HandleFunc("/", mainpage.Mainpage(app.Stats))
-	http.HandleFunc("/search-dups", searchdups.Searchdups(app.DB))
+	http.HandleFunc("/show-dups", searchdups.Searchdups(app.DB))
 }

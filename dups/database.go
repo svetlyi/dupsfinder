@@ -16,6 +16,7 @@ WHERE f1.hash IN (
 	GROUP BY f2.hash
 	HAVING COUNT(*) > 1
 ) ORDER BY f1.hash, LENGTH(f1.path) DESC
+LIMIT ? OFFSET ?
 `
 	selectStmt, selectErr := db.Prepare(query)
 

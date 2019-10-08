@@ -3,16 +3,16 @@ package console
 const basePrompt = ">>>"
 
 const (
-	findDupsCmd     = "find-dups"
-	showStatsCmd    = "show-stats"
-	showDupsCmd     = "show-dups"
-	runWebServerCmd = "run-web-server"
-	exitCmd         = "exit"
+	updateIndexDBCmd = "update-index"
+	showStatsCmd     = "show-stats"
+	showDupsCmd      = "show-dups" //TODO: implement
+	runWebServerCmd  = "run-web-server"
+	exitCmd          = "exit"
 )
 
 func getCommandList() []string {
 	return []string{
-		findDupsCmd,
+		updateIndexDBCmd,
 		showDupsCmd,
 		runWebServerCmd,
 		showStatsCmd,

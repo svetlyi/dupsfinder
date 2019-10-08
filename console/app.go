@@ -45,8 +45,8 @@ func runCreateDB(scanner *bufio.Scanner) *sql.DB {
 
 func runCmd(cmd string, scanner *bufio.Scanner) {
 	switch cmd {
-	case findDupsCmd:
-		runFindDupsCmd(scanner, application)
+	case updateIndexDBCmd:
+		runUpdateIndexDBCmd(scanner, application)
 	case showStatsCmd:
 		runShowStatsCmd(application.Stats)
 	case runWebServerCmd:

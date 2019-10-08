@@ -2,11 +2,13 @@ package searchdups
 
 import (
 	"database/sql"
+	"github.com/svetlyi/dupsfinder/config"
 	"github.com/svetlyi/dupsfinder/dups"
 	"github.com/svetlyi/dupsfinder/structs"
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -37,12 +39,20 @@ func Searchdups(db *sql.DB) func(writer http.ResponseWriter, request *http.Reque
 	selectDupsStmt := dups.GetSelectDupsByDir(db)
 
 	return func(writer http.ResponseWriter, request *http.Request) {
-		dirsToSearch, ok := request.URL.Query()["dir"]
+		dirsToSearch, dirsToSearchOk := request.URL.Query()["dir"]
+		var page int = 1
+		pages, pageOk := request.URL.Query()["page"]
+		if pageOk {
+			pageFromRequest, err := strconv.Atoi(pages[0])
+			if nil == err {
+				page = pageFromRequest
+			}
+		}
 		var searchDupsObj searchDupsTmplObj
 		searchDupsObj.Files = make(map[string][]fileTmplObj)
 
-		if ok && len(dirsToSearch) == 1 {
-			rows, err := selectDupsStmt.Query(dirsToSearch[0])
+		if dirsToSearchOk && len(dirsToSearch) == 1 {
+			rows, err := selectDupsStmt.Query(dirsToSearch[0], config.DupsPerPage, config.DupsPerPage*page)
 			if nil != err {
 				log.Fatalf("An error while querying: %v", err)
 			}

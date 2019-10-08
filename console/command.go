@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/svetlyi/dupsfinder/app"
 	"github.com/svetlyi/dupsfinder/config"
-	"github.com/svetlyi/dupsfinder/dups"
+	"github.com/svetlyi/dupsfinder/file"
 	"github.com/svetlyi/dupsfinder/structs"
 	"github.com/svetlyi/dupsfinder/web"
 	"os"
@@ -68,12 +68,12 @@ func runWebServer(scanner *bufio.Scanner, app *app.App) {
 	}
 }
 
-func runFindDupsCmd(scanner *bufio.Scanner, app *app.App) {
+func runUpdateIndexDBCmd(scanner *bufio.Scanner, app *app.App) {
 	app.Stats.StartTime = time.Now()
 
 	var path string
 
-	path = getValueFromUser(scanner, "type folder to search dups in", "")
+	path = getValueFromUser(scanner, "type folder to update index from", "")
 
 	procNumText := getValueFromUser(scanner, "type number of goroutines (processors) to use", strconv.Itoa(config.ProcNum))
 	procNum64, err := strconv.ParseInt(procNumText, 10, 8)
@@ -81,7 +81,7 @@ func runFindDupsCmd(scanner *bufio.Scanner, app *app.App) {
 		fmt.Printf("either wrong number of goroutines or wrong format: %s\n", err)
 	}
 	if path != "" && procNum64 > 0 {
-		go dups.Find(path, uint8(procNum64), app)
+		go file.UpdateIndexDB(path, uint8(procNum64), app)
 	}
 }
 

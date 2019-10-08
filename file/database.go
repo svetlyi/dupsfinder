@@ -24,19 +24,18 @@ func GetHashByPathFromDB(stmt *sql.Stmt, path string) (string, error) {
 	return hash, nil
 }
 
-func GetSelectFilesByDir(db *sql.DB) *sql.Stmt {
-	selectStmt, selectErr := db.Prepare("SELECT path, hash FROM files WHERE path LIKE ?")
-
-	if nil != selectErr {
-		log.Fatalf("Error in GetSelectFilesByDir: %s\n", selectErr)
-	}
-	return selectStmt
-}
-
 func GetInsertStmt(db *sql.DB) *sql.Stmt {
 	insertStmt, insertErr := db.Prepare(`INSERT INTO files('path', 'hash') VALUES (?, ?)`)
 	if insertErr != nil {
-		log.Fatalf("Error in getInsertStmt: %s\n", insertErr)
+		log.Fatalf("Error in GetInsertStmt: %s\n", insertErr)
 	}
 	return insertStmt
+}
+
+func GetUpdateHashStmt(db *sql.DB) *sql.Stmt {
+	updateStmt, insertErr := db.Prepare(`UPDATE files SET 'hash' = ? WHERE 'path' = ?`)
+	if insertErr != nil {
+		log.Fatalf("Error in GetUpdateHashStmt: %s\n", insertErr)
+	}
+	return updateStmt
 }
