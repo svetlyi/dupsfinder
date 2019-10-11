@@ -26,6 +26,7 @@ func Run() {
 	scanner := bufio.NewScanner(os.Stdin)
 	var cmd string
 
+	application.Logger.Msg("starting dupsfinder")
 	for {
 		cmd = ""
 		if nil == application.DB {
@@ -49,6 +50,8 @@ func runCmd(cmd string, scanner *bufio.Scanner) {
 		runUpdateIndexDBCmd(scanner, application)
 	case showStatsCmd:
 		runShowStatsCmd(application.Stats)
+	case showDupsCmd:
+		runShowDupsCmd(scanner, application)
 	case runWebServerCmd:
 		runWebServer(scanner, application)
 	case exitCmd:

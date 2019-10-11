@@ -5,7 +5,7 @@ const basePrompt = ">>>"
 const (
 	updateIndexDBCmd = "update-index"
 	showStatsCmd     = "show-stats"
-	showDupsCmd      = "show-dups" //TODO: implement
+	showDupsCmd      = "show-dups"
 	runWebServerCmd  = "run-web-server"
 	exitCmd          = "exit"
 )

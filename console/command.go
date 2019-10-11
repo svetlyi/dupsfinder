@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/svetlyi/dupsfinder/app"
 	"github.com/svetlyi/dupsfinder/config"
+	"github.com/svetlyi/dupsfinder/dups"
 	"github.com/svetlyi/dupsfinder/file"
 	"github.com/svetlyi/dupsfinder/structs"
 	"github.com/svetlyi/dupsfinder/web"
@@ -17,7 +18,7 @@ import (
 func chooseCmd(scanner *bufio.Scanner) string {
 	cmd := getValueFromUser(
 		scanner,
-		fmt.Sprintf("choose command (%s): ", strings.Join(getCommandList(), ", ")),
+		fmt.Sprintf("choose command (%s)", strings.Join(getCommandList(), ", ")),
 		"",
 	)
 
@@ -87,6 +88,40 @@ func runUpdateIndexDBCmd(scanner *bufio.Scanner, app *app.App) {
 
 func runShowStatsCmd(stats *structs.Stats) {
 	fmt.Println(stats.String())
+}
+
+func runShowDupsCmd(scanner *bufio.Scanner, app *app.App) {
+	var path string
+	var page int
+
+	path = getValueFromUser(scanner, "type folder where to show dups from", "")
+
+	var enoughPages = false
+
+	for !enoughPages {
+		duplicatesSets, err := dups.Get(path, page, app)
+		if err != nil {
+			app.Logger.Err(err.Error())
+			return
+		}
+
+		if len(duplicatesSets.Files) > 0 {
+			app.Logger.Msg(fmt.Sprintf("found %d duplicates in %s", len(duplicatesSets.Files), path))
+
+			for hash, duplicates := range duplicatesSets.Files {
+				fmt.Printf("\n=======\n%s:\n=======\n\n", hash)
+				for _, duplicate := range duplicates {
+					fmt.Println(duplicate.Path)
+				}
+			}
+			page++
+		} else {
+			fmt.Println("there are no more duplicates")
+			break
+		}
+		moreValues := getValueFromUser(scanner, "more values? (1/0)", "1")
+		enoughPages = enoughPages || ("0" == moreValues)
+	}
 }
 
 func runWrongCmd(cmd string) {

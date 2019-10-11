@@ -19,6 +19,13 @@ type App struct {
 	Stats    *structs.Stats
 }
 
+// Fatal logs some really fatal error and tries to finish
+// the application gracefully by closing ExitChan channel
+func (app *App) Fatal(msg string) {
+	app.Logger.Err(msg)
+	close(*app.ExitChan)
+}
+
 func New() (*App, error) {
 	exitChan := make(chan bool)
 	doneChan := make(chan bool)

@@ -3,6 +3,7 @@ package file
 import (
 	"fmt"
 	"github.com/svetlyi/dupsfinder/app"
+	"github.com/svetlyi/dupsfinder/config"
 	"io"
 	"os"
 	"path/filepath"
@@ -27,7 +28,7 @@ func WalkThroughFiles(initDir string, filesChannel *chan string, app *app.App) {
 				return err
 			}
 			app.Logger.Msg(fmt.Sprintf("visited file or dir: %q\n", path))
-			if !info.IsDir() {
+			if !info.IsDir() && (info.Size() > config.IgnoreFilesLessThanBytes) {
 				app.Logger.Msg(fmt.Sprintf("it is not a dir: %q\n", path))
 
 				mutex.Lock()

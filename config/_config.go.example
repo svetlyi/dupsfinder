@@ -2,9 +2,10 @@ package config
 
 var (
 	// nil value for an option means it is not set
-	DBPath string = "./dups.db"
-	ProcNum int = 1
-	DupsPerPage = 20
-    LogFile string = "dupsfinder.log"
-	WebServerPort int = 55786
+	DBPath                   string = "./dups.db"
+	ProcNum                  int    = 1
+	DupsPerPage              int    = 5
+	IgnoreFilesLessThanBytes int64  = 1000
+	LogFile                  string = "dupsfinder.log"
+	WebServerPort            int    = 55786
 )

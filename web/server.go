@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/svetlyi/dupsfinder/app"
+	"github.com/svetlyi/dupsfinder/web/templates/dups"
 	"github.com/svetlyi/dupsfinder/web/templates/mainpage"
-	"github.com/svetlyi/dupsfinder/web/templates/searchdups"
 	"net/http"
 )
 
@@ -32,5 +32,5 @@ func Serve(port uint16, app *app.App) {
 func registerRoutes(app *app.App) {
 	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("./web/templates/static"))))
 	http.HandleFunc("/", mainpage.Mainpage(app.Stats))
-	http.HandleFunc("/show-dups", searchdups.Searchdups(app.DB))
+	http.HandleFunc("/show-dups", dups.Show(app))
 }
