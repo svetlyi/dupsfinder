@@ -15,16 +15,10 @@ Listens to filesChannel channel and calculates hashes for
 the received from the channel files. Information about the
 processed files goes into filesInfoChannel channel.
 */
-func CalculateHashes(filesChan *chan string, filesInfoChan *chan structs.FileInfo, calcHashesWG *sync.WaitGroup, logger *logger.Logger) {
-	var hash string
-
-	for path := range *filesChan {
-		hash = calculateHash(path, logger)
-		fileInfo := structs.FileInfo{
-			Path: path,
-			Hash: hash,
-		}
-		*filesInfoChan <- fileInfo
+func CalculateHashes(filesChan *chan structs.FileInfo, filesInfoChan *chan structs.FileInfo, calcHashesWG *sync.WaitGroup, logger *logger.Logger) {
+	for file := range *filesChan {
+		file.Hash = calculateHash(file.Path, logger)
+		*filesInfoChan <- file
 	}
 	calcHashesWG.Done()
 }

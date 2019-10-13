@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/svetlyi/dupsfinder/app"
 	"github.com/svetlyi/dupsfinder/config"
+	"github.com/svetlyi/dupsfinder/structs"
 	"io"
 	"os"
 	"path/filepath"
@@ -14,7 +15,7 @@ import (
 Walks through the files in initDir folder
 and sends the files to filesChannel channel
 */
-func WalkThroughFiles(initDir string, filesChannel *chan string, app *app.App) {
+func WalkThroughFiles(initDir string, filesChannel *chan structs.FileInfo, app *app.App) {
 	mutex := sync.Mutex{}
 	defer close(*filesChannel)
 
@@ -35,7 +36,8 @@ func WalkThroughFiles(initDir string, filesChannel *chan string, app *app.App) {
 				(*app.Stats).FilesAmount++
 				(*app.Stats).FilesSize += info.Size()
 				mutex.Unlock()
-				*filesChannel <- path
+
+				*filesChannel <- structs.FileInfo{Path: path, Hash: "", Size: info.Size()}
 			}
 			return nil
 		}

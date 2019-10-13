@@ -8,6 +8,7 @@ import (
 type FileInfo struct {
 	Path string
 	Hash string
+	Size int64
 }
 
 func (fi *FileInfo) SplitPath() []string {

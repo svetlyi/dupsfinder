@@ -1,44 +1,50 @@
 {{define "content"}}
-{{- template "header" -}}
-<h1>Show duplicates for a specific directory:</h1>
-<form method="get" action="/show-dups">
-    <label for="directory">Directory:</label>
-    <input id="directory" type="text" value="" name="dir" placeholder="directory"/>
-    <input type="submit" value="Show"/>
-</form>
-<table border="1">
-    <thead>
-    <tr>
-        <td>Path</td>
-    </tr>
-    </thead>
-    <tbody>
-    {{ $curClass := "even" }}
-    {{ range $currentHash, $currentFiles := .Files }}
-        {{ if eq $curClass "even" }}
-            {{ $curClass = "odd" }}
-        {{ else }}
-            {{ $curClass = "even" }}
-        {{ end }}
-
-        {{ range $currentFiles }}
-            <tr class="{{ $curClass }}">
-                <td>
-                    {{ .Hash }}
-                </td>
-                <td>
-                    {{ $url := "" }}
-                    {{range .PathParts}}
-                        {{ if . }}
-                            {{ $url = (printf "%v/%v" $url .) }}
-                            <a href="?dir={{ $url }}">{{ . }}/</a>
-                        {{end}}
-                    {{end}}
-                </td>
+    {{- template "header" -}}
+    <h1>Show duplicates for a specific directory:</h1>
+    <form method="get" action="/show-dups">
+        <label for="directory">Directory:</label>
+        <input id="directory" type="text" value="" name="dir" placeholder="directory"/>
+        <input type="submit" value="Show"/>
+    </form>
+    {{ if not .Files }}
+        <p>no more duplicates</p>
+    {{ else }}
+        <table border="1">
+            <thead>
+            <tr>
+                <td>Path</td>
             </tr>
-        {{ end }}
-    {{ end }}
-    </tbody>
-</table>
-{{- template "footer" -}}
+            </thead>
+            <tbody>
+            {{ $curClass := "even" }}
+
+            {{ range $currentHash, $currentFiles := .Files }}
+                {{ if eq $curClass "even" }}
+                    {{ $curClass = "odd" }}
+                {{ else }}
+                    {{ $curClass = "even" }}
+                {{ end }}
+
+                {{ range $currentFiles }}
+                    <tr class="{{ $curClass }}">
+                        <td>
+                            {{ .Hash }}
+                        </td>
+                        <td>
+                            {{ $url := "" }}
+                            {{range .PathParts}}
+                                {{ if . }}
+                                    {{ $url = (printf "%v/%v" $url .) }}
+                                    <a href="?dir={{ $url }}">{{ . }}/</a>
+                                {{end}}
+                            {{end}}
+                        </td>
+                    </tr>
+                {{ end }}
+            {{ end }}
+
+            </tbody>
+        </table>
+    {{end}}
+    {{- template "footer" -}}
 {{end}}

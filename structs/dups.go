@@ -7,7 +7,6 @@ type FileTmplObj struct {
 }
 
 type DupsTmplObj struct {
-	Files    map[string][]FileTmplObj
-	PageNum  int
-	PagesNum int
+	Files   map[string][]FileTmplObj
+	PageNum int
 }

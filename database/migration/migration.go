@@ -12,7 +12,8 @@ func init() {
 CREATE TABLE IF NOT EXISTS files (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	path VARCHAR(255),
-	hash VARCHAR(255)
+	hash VARCHAR(255),
+	size INTEGER
 )
 `)
 }

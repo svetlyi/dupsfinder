@@ -25,7 +25,7 @@ func GetHashByPathFromDB(stmt *sql.Stmt, path string) (string, error) {
 }
 
 func GetInsertStmt(db *sql.DB) *sql.Stmt {
-	insertStmt, insertErr := db.Prepare(`INSERT INTO files('path', 'hash') VALUES (?, ?)`)
+	insertStmt, insertErr := db.Prepare(`INSERT INTO files('path', 'hash', 'size') VALUES (?, ?, ?)`)
 	if insertErr != nil {
 		log.Fatalf("Error in GetInsertStmt: %s\n", insertErr)
 	}
