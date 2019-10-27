@@ -11,13 +11,11 @@ import (
 	"sync"
 )
 
-/**
-Walks through the files in initDir folder
-and sends the files to filesChannel channel
-*/
-func WalkThroughFiles(initDir string, filesChannel *chan structs.FileInfo, app *app.App) {
+// walkThroughFiles walks through the files in initDir folder
+// and sends the files to filesChannel channel
+func walkThroughFiles(initDir string, filesChan *chan structs.FileInfo, app *app.App) {
 	mutex := sync.Mutex{}
-	defer close(*filesChannel)
+	defer close(*filesChan)
 
 	err := filepath.Walk(initDir, func(path string, info os.FileInfo, err error) error {
 		select {
@@ -37,7 +35,7 @@ func WalkThroughFiles(initDir string, filesChannel *chan structs.FileInfo, app *
 				(*app.Stats).FilesSize += info.Size()
 				mutex.Unlock()
 
-				*filesChannel <- structs.FileInfo{Path: path, Hash: "", Size: info.Size()}
+				*filesChan <- structs.FileInfo{Path: path, Hash: "", Size: info.Size()}
 			}
 			return nil
 		}

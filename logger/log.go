@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	TypeError     = 1
-	TypeMessage   = 2
-	TypeDelimiter = 3
+	TypeError = iota
+	TypeMessage
+	TypeDelimiter
 )
 
 type Logger struct {
@@ -28,7 +28,7 @@ func New(writer io.Writer) *Logger {
 	}
 }
 
-func (logger *Logger) ListenToChannel(exitChan *chan bool) {
+func (logger *Logger) ListenToChannel(exitChan *structs.ExitChan) {
 	for logObj := range logger.logChan {
 		logger.logMutex.Lock()
 		if _, err := logger.messagesBuf.Write([]byte(logObj.Message + "\n")); err != nil {

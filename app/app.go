@@ -13,7 +13,7 @@ type App struct {
 	Logger *logger.Logger
 	// doneChan indicates that the application is about to exit
 	// either user pressed exit or there was some fatal error
-	ExitChan *chan bool
+	ExitChan *structs.ExitChan
 	// doneChan indicates that the calculations on all the files are finished
 	DoneChan *chan bool
 	Stats    *structs.Stats
@@ -27,7 +27,7 @@ func (app *App) Fatal(msg string) {
 }
 
 func New() (*App, error) {
-	exitChan := make(chan bool)
+	exitChan := make(structs.ExitChan)
 	doneChan := make(chan bool)
 	if logWriter, err := os.Create(config.LogFile); nil == err {
 		return &App{

@@ -6,12 +6,12 @@ import (
 )
 
 func GetSelectHashByPathStmt(db *sql.DB) *sql.Stmt {
-	selectStmt, selectErr := db.Prepare("SELECT hash FROM files WHERE path=?")
-
-	if nil != selectErr {
-		log.Fatalf("Error in GetSelectHashByPathStmt: %s\n", selectErr)
+	stmt, err := db.Prepare("SELECT hash FROM files WHERE path=?")
+	if nil != err {
+		log.Fatalf("Error in GetSelectHashByPathStmt: %s\n", err)
 	}
-	return selectStmt
+
+	return stmt
 }
 
 func GetHashByPathFromDB(stmt *sql.Stmt, path string) (string, error) {
@@ -24,6 +24,8 @@ func GetHashByPathFromDB(stmt *sql.Stmt, path string) (string, error) {
 	return hash, nil
 }
 
+// GetInsertStmt inserts information about
+// a file (path, hash and size)
 func GetInsertStmt(db *sql.DB) *sql.Stmt {
 	insertStmt, insertErr := db.Prepare(`INSERT INTO files('path', 'hash', 'size') VALUES (?, ?, ?)`)
 	if insertErr != nil {
@@ -32,6 +34,7 @@ func GetInsertStmt(db *sql.DB) *sql.Stmt {
 	return insertStmt
 }
 
+// GetUpdateHashStmt updates hash by path
 func GetUpdateHashStmt(db *sql.DB) *sql.Stmt {
 	updateStmt, insertErr := db.Prepare(`UPDATE files SET 'hash' = ? WHERE 'path' = ?`)
 	if insertErr != nil {

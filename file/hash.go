@@ -10,12 +10,10 @@ import (
 	"sync"
 )
 
-/**
-Listens to filesChannel channel and calculates hashes for
-the received from the channel files. Information about the
-processed files goes into filesInfoChannel channel.
-*/
-func CalculateHashes(filesChan *chan structs.FileInfo, filesInfoChan *chan structs.FileInfo, calcHashesWG *sync.WaitGroup, logger *logger.Logger) {
+// calculateHashes listens to filesChannel channel and calculates hashes for
+// the received from the channel files. Information about the
+// processed files goes into filesInfoChannel channel.
+func calculateHashes(filesChan *chan structs.FileInfo, filesInfoChan *chan structs.FileInfo, calcHashesWG *sync.WaitGroup, logger *logger.Logger) {
 	for file := range *filesChan {
 		file.Hash = calculateHash(file.Path, logger)
 		*filesInfoChan <- file

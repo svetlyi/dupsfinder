@@ -28,7 +28,7 @@ func Show(app *app.App) func(writer http.ResponseWriter, request *http.Request) 
 
 	return func(writer http.ResponseWriter, request *http.Request) {
 		dirsToSearch, dirsToSearchOk := request.URL.Query()["dir"]
-		var page int = 1
+		var page int = 0
 		pages, pageOk := request.URL.Query()["page"]
 		if pageOk {
 			pageFromRequest, err := strconv.Atoi(pages[0])

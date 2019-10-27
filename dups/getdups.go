@@ -7,6 +7,8 @@ import (
 	"github.com/svetlyi/dupsfinder/structs"
 )
 
+// Get returns duplicates for path.
+// Pages start with 0
 func Get(path string, page int, app *app.App) (structs.DupsTmplObj, error) {
 	selectDupsStmt := GetSelectDupsByDir(app.DB)
 

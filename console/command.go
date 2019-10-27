@@ -49,7 +49,7 @@ func runExitCmd(app *app.App) {
 		close(*app.ExitChan)
 		fmt.Println("closed exit channel. It will exit as soon as the operations will be finished")
 
-		go func(exitChan *chan bool) {
+		go func(exitChan *structs.ExitChan) {
 			<-*exitChan
 			fmt.Println("exiting...")
 			os.Exit(0)
@@ -70,7 +70,12 @@ func runWebServer(scanner *bufio.Scanner, app *app.App) {
 }
 
 func runUpdateIndexDBCmd(scanner *bufio.Scanner, app *app.App) {
-	app.Stats.StartTime = time.Now()
+	app.Stats = &structs.Stats{
+		StartTime:   time.Now(),
+		EndTime:     time.Time{},
+		FilesSize:   0,
+		FilesAmount: 0,
+	}
 
 	var path string
 
